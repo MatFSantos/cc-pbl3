@@ -1,0 +1,4 @@
+São Luís, Salvador, 500, 10, A
+Maceió, Recife, 300, 10, A
+Salvador, Porto Seguro, 100, 10, A
+Recife, Caruaru, 150, 10, A
