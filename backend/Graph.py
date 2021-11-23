@@ -95,23 +95,36 @@ class Map():
     def get_routing(self):    
         for city in names_of_cities:
             self.add_city(City(city))
-        number_of_paths = self.get_number_of_cities() * 2
-        paths = list()
-        companies = [Company("A"), Company("B"), Company("C")]
+        
+        companies = {"A":Company("A"),"B": Company("B"),"C": Company("C")} # mudei para dicionário, pra facilitar
+        this_company = input("Informe Compania: ") #capturo de qual compania é o mapa
+        file = open(f"backend\company{this_company}.txt", mode='r', encoding='utf-8') #abro o file
 
+        for line in file: # ler linha por linha do file
+            attr = line.split(',') # dou split nos atributos da rota
+            origin = None
+            destination = None
+            for city in self.cities: # procuro as cidades de origem e destino na lista de cidades do mapa
+                if city.name == attr[0]:
+                    origin = city
+                elif city.name == attr[1]:
+                    destination = city
+            Route(origin, destination,attr[2],attr[3],companies[this_company]) #instancio a nova rota.
+        
+        for city in self.cities: #para teste
+            if len(city.routes) > 0:
+                print('nome cidade: ',city.name)
+                print(' rotas:')
+                i = 0
+                for route in city.routes:
+                    print(f'    Rota {i}: ')
+                    print("         nome origem: ",route.origin.name)
+                    print("         nome destino: ", route.destination.name)
+                    print("         preço: ", route.price)
+                    print("         assentos: ", route.entries)
+                    print("         compania: ", route.company.name)
+                    i +=1
 
-        while number_of_paths > 0: #each iteration it's a path
-            number_of_routes = random.randint(0, self.get_number_of_cities())
-            routes = list()
-            index_cities = self.index_cities_generator(number_of_routes+1)
-            i = 0
-            for index in index_cities:
-                selected_company = random.randint(0, len(companies)-1)
-                if(i != number_of_routes): #indicate that is the last city of path
-                    routes.append(Route(City(names_of_cities[index]), City(names_of_cities[index_cities[index + 1]]), random.randint(10, 100), 10, companies[selected_company]))        
-                i += 1
-            paths.append(Path(routes))
-            number_of_paths = number_of_paths - 1
 
     def index_cities_generator(self, n):
         index_cities = random.sample(range(0, self.get_number_of_cities()), n)

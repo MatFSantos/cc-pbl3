@@ -3,4 +3,4 @@ Maceió,Recife,300,10,A
 Salvador,Porto Seguro,100,10,A
 Recife,Caruaru,150,10,A
 Caruaru,Natal,215,10,A
-Caruaru,Aracajú,311,10,A
+Caruaru,Aracaju,311,10,A

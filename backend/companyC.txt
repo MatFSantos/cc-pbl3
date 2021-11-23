@@ -1,4 +1,4 @@
-Salvador,Aracajú,310,10,C
+Salvador,Aracaju,310,10,C
 João Pessoa,São Luís,355,10,C
 Maceió,Porto Seguro,319,10,C
 Recife,Natal,374,10,C
