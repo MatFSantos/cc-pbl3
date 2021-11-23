@@ -1,0 +1,5 @@
+Salvador,São Luís,275,10,B
+Barreiras,Salvador,114,10,B
+João Pessoa,Barreiras,208,10,B
+Natal,Caruaru,291,10,B
+Porto Seguro,Salvador,97,10,B

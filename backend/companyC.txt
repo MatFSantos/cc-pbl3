@@ -1,0 +1,7 @@
+Salvador,Aracajú,310,10,C
+João Pessoa,São Luís,355,10,C
+Maceió,Porto Seguro,319,10,C
+Recife,Natal,374,10,C
+Porto Seguro,João Pessoa,300,10,C
+São Luís,Barreiras,390,10,C
+Barreiras,Caruaru,302,10,C
