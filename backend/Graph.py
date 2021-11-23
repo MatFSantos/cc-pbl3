@@ -122,7 +122,7 @@ class Map():
                     print("         nome destino: ", route.destination.name)
                     print("         preço: ", route.price)
                     print("         assentos: ", route.entries)
-                    print("         compania: ", route.company.name)
+                    print("         companhia: ", route.company.name)
                     i +=1
 
 
