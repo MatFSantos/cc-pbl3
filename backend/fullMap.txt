@@ -1,0 +1,18 @@
+São Luís,Salvador,500,10,A
+Maceió,Recife,300,10,A
+Salvador,Porto Seguro,100,10,A
+Recife,Caruaru,150,10,A
+Caruaru,Natal,215,10,A
+Caruaru,Aracaju,311,10,A
+Salvador,São Luís,275,10,B
+Barreiras,Salvador,114,10,B
+João Pessoa,Barreiras,208,10,B
+Natal,Caruaru,291,10,B
+Porto Seguro,Salvador,97,10,B
+Salvador,Aracaju,310,10,C
+João Pessoa,São Luís,355,10,C
+Maceió,Porto Seguro,319,10,C
+Recife,Natal,374,10,C
+Porto Seguro,João Pessoa,300,10,C
+São Luís,Barreiras,390,10,C
+Barreiras,Caruaru,302,10,C

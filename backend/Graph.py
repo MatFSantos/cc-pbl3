@@ -98,7 +98,8 @@ class Map():
         
         companies = {"A":Company("A"),"B": Company("B"),"C": Company("C")} # mudei para dicionário, pra facilitar
         this_company = input("Informe Compania: ") #capturo de qual compania é o mapa
-        file = open(f"backend\company{this_company}.txt", mode='r', encoding='utf-8') #abro o file
+        # file = open(f"backend\company{this_company}.txt", mode='r', encoding='utf-8') #abro o file
+        file = open(f"backend\fullMap.txt", mode='r', encoding='utf-8')
 
         for line in file: # ler linha por linha do file
             attr = line.split(',') # dou split nos atributos da rota
@@ -130,8 +131,38 @@ class Map():
         index_cities = random.sample(range(0, self.get_number_of_cities()), n)
         return index_cities
 
+    def init_dfs(self, origin, destination):
+        visited = list()
+        path = list()
+        paths = list()
+        self.dfs(visited, path,paths, origin, destination)
+        for caminho in paths:
+            print("caminho:")
+            for city in caminho:
+                print(" ",city.get_name())
+
+
+    def dfs(self, visited, path,paths, node, destination):
+        if node not in visited:
+            path.append(node)
+            if node == destination:
+                paths.append(path.copy())
+                path.pop()
+                return
+            visited.append(node)
+            for neighbour in node.get_routes():
+                self.dfs(visited,path,paths, neighbour.get_destination(), destination)
+                
+            path.pop()
+            visited.pop()
+
+
+
 mapa = Map()
 mapa.get_routing()
+mapa.init_dfs(mapa.get_cities()[0], mapa.get_cities()[2])
+
+
 
 
 #c1 = City("c1")
