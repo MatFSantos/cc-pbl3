@@ -1,9 +1,12 @@
 from flask import Flask, json, jsonify
 from threading import Thread
+import socket
 
 from model.city import City
 from model.route import Route
 from model.map import Map
+
+host = ('26.183.229.122', 50000) #sevidor de broadcast
 
 names_of_cities = ('Salvador', 'Maceió', 'Aracaju', 'Recife', 'São Luís', 'João Pessoa', 'Natal', 'Porto Seguro', 'Caruaru', 'Barreiras')
 company_map = Map()
@@ -14,7 +17,24 @@ class Company:
     def __init__(self):
         self.name = input("Informe a companhia: ")
         self.get_routing(self.name)
+        companies = self.get_companies()
+        self.company_addr1 = companies[0]
+        self.company_addr2 = companies[1]
         Api_Flask(self.name).start()
+
+
+    def get_companies(self):
+        broadcast = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        broadcast.connect(host)
+        broadcast.send(bytes(self.name, 'utf-8'))
+        companies = broadcast.recv(1024).decode()
+        companies = companies.split(';')
+        company1 = companies[0].split(',')
+        company2 = companies[1].split(',')
+        return [{'ip': company1[0], 'port': company1[1]}, {'ip': company2[0], 'port': company2[1]}]
+
+    def get_full_map(self):
+        print(full_map)
 
     def get_routing(self, name):    
         file = open(f"maps\company{name}.txt", mode='r', encoding='utf-8') #abro o file
@@ -68,6 +88,17 @@ class Api_Flask(Thread):
         def index():
             return jsonify({"A": company.name})
 
-        app.run()
+        @app.route('/teste')
+        def teste():
+            return jsonify({"conteudo": "isso é um teste, amigo"})
+        
+        port = ''
+        if self.company_name == 'A':
+            port = '55000'
+        elif self.company_name == 'B':
+            port = '56000'
+        else:
+            port = '57000'
+        app.run(host='0.0.0.0', port=port)
 
 company = Company()
