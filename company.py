@@ -69,24 +69,28 @@ class Company:
                     i +=1
 
 
-    def get_routing_full(self, string_map):    
+    def get_routing_full(self, string_map):
+
+        for city in self.company_map.get_cities:
+            self.full_map.add_city(city)
+
         lines = string_map.split('\n')
-        for line in lines: # ler linha por linha do file
+        for line in lines:
             if line != '':
                 attr = line.split(',') # dou split nos atributos da rota
                 origin = None
                 destination = None
                 for city_company in  self.company_map.get_cities():
                     if city_company.get_name() == attr[0]:
-                        origin = self.company_map.get_city_by_name(attr[0])
+                        origin = self.full_map.get_city_by_name(attr[0])
                     if city_company.get_name() == attr[1]:
-                        destination = self.company_map.get_city_by_name(attr[1])
+                        destination = self.full_map.get_city_by_name(attr[1])
                 if not origin:
                     origin = City(attr[0])
-                self.full_map.add_city(origin)
+                    self.full_map.add_city(origin)
                 if not destination:
                     destination = City(attr[1])
-                self.full_map.add_city(destination)
+                    self.full_map.add_city(destination)
 
             Route(origin, destination,attr[2],attr[3], attr[4]) #instancio a nova rota.
 
