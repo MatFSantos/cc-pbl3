@@ -1,5 +1,6 @@
 import socket
 import time
+import copy
 
 from alive_server import AliveServer
 from alive_client import AliveClient
@@ -25,7 +26,7 @@ class CompanyServer(Thread):
         
         companies = self.get_companies()  
         self.company_addr = []
-        self.active_companies = []
+        self.alive_companies = []
         for company_attr in companies:
             self.company_addr.append(
                 {
@@ -36,58 +37,48 @@ class CompanyServer(Thread):
             )
 
         for company_attr in self.company_addr:
-            self.active_companies.append({company_attr['company']: False})
+            self.alive_companies.append({company_attr['company']: False})
 
-        self.active_companies_copy = self.active_companies.copy() #para verificar se ouve alguma alteração em uma companhia
+        self.alive_equal = False #para verificar se ouve alguma alteração em uma companhia
         AliveServer((self.addr[0], self.addr[1]+3000)).start() #para verificar
 
         self.company_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.company_server.bind(self.addr)
         self.company_server.listen(5)
 
-    def run(self):    
+    def run(self):   
         AliveClient(self).start()
-        time.sleep(5)
-        self.get_full_map()
         while True:
             response = ''
             conn, cliente = self.company_server.accept()
             print("Conectado pelo cliente: ", cliente)
             msg = conn.recv(1024).decode()
             if msg == "map":
-                file = open(f"maps\company{self.name}.txt", mode='r', encoding='utf-8')
-                response = file.read()
+                response = self.company.get_company_map().convert_to_string(self.company.get_name())
                 conn.send(bytes(response, 'utf-8'))
                 print("Mapa enviado para a companhia: ", cliente)
-
-            # if self.active_companies != self.active_companies_copy:
-        #         print("Houve uma mudança nas companhias ativas, reestabelecendo mapa de trechos...")
-        #         self.get_full_map()
-        #         print("Mapa restabelecido!")
-        #         self.active_companies_copy = self.active_companies.copy()
-
             conn.close()
-            
-            
 
     def verify_alive_companies(self): 
             
         i = 0
         for company_attr in self.company_addr:
-            alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)           
+            alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
+            flag = self.alive_companies[i][company_attr['company']]      
             try:
-                print("Tentativa de conexão com a Companhia: ", company_attr['addr_alive_server'])
+                print("Tentativa de conexão com a Companhia: ", company_attr['company'])
                 alive_socket.connect(company_attr['addr_alive_server']) 
-                print("conectou")
                 alive_socket.close()
-                self.active_companies[i][company_attr['company']] = True
+                self.alive_companies[i][company_attr['company']] = True
                 print("Companhia", company_attr['company'], "está ativa.")
-                
+                       
             except Exception as ex:
                 print("Companhia", company_attr['company'], "não está ativa.")
-                self.active_companies[i][company_attr['company']] = False
+                self.alive_companies[i][company_attr['company']] = False
 
             finally:
+                if flag != self.alive_companies[i][company_attr['company']]:
+                    self.alive_equal = False
                 i += 1
             
 
@@ -107,7 +98,7 @@ class CompanyServer(Thread):
         i = 0
         for company_attr in self.company_addr:
             full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if self.active_companies[i][company_attr['company']]:
+            if self.alive_companies[i][company_attr['company']]:
                 print("Requisitando o mapa da Companhia: ", company_attr['company'])
                 full_map_socket.connect(company_attr['addr'])
                 full_map_socket.send(bytes("map", 'utf-8'))
@@ -118,10 +109,14 @@ class CompanyServer(Thread):
 
         if string_map != '':
             self.company.get_routing_full(string_map)
+            print("Full map reestabelecido")
         else:
-            print("Full map estabelecido")
+            print("Companhias inativas, mapa alterado somente para esta companhia.")
             full_map = self.company.get_company_map()
             self.company.set_full_map(full_map)
+        
+    def get_alive_equal(self):
+        return self.alive_equal
 
-        #for city_company_map in company_map.get_cities():
-        #    full_map.add_city(city_company_map)
+    def set_alive_equal(self):
+        self.alive_equal = True

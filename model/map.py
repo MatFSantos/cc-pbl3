@@ -1,3 +1,4 @@
+
 class Map():
 
     def __init__(self):
@@ -19,28 +20,38 @@ class Map():
             if city.get_name() == name:
                 return city
         return None
-        
+    
+    def convert_to_string(self, company_name):
+        string_map = ''
+        for city in self.cities:
+            for route in city.get_routes():
+                if company_name == route.get_company():
+                    string_map += f'{route.get_origin().get_name()},{route.get_destination().get_name()},{route.get_price()},{route.get_entries()},{route.get_company()}\n'
+        print("string map: ",string_map)
+        return string_map
     def init_dfs(self, origin, destination):
         visited = list()
-        path = list()
-        paths = list()
-        self.dfs(visited, path,paths, origin, destination)
-        for caminho in paths:
-            print("caminho:")
-            for city in caminho:
-                print(" ",city.get_name())
+        routes = list()
+        route = list()
+        self.dfs(visited, self.get_city_by_name(origin), self.get_city_by_name(destination), routes, route)
+        # for rota in routes:
+        #     print("caminho: ")
+        #     for caminho in rota:
+        #         print("origem: ", caminho.get_origin().get_name())
+        #         print("destino: ", caminho.get_destination().get_name())
+         
+        return routes
 
-
-    def dfs(self, visited, path,paths, node, destination):
+    def dfs(self, visited, node, destination, routes, route):
         if node not in visited:
-            path.append(node)
             if node == destination:
-                paths.append(path.copy())
-                path.pop()
-                return
+                routes.append(route.copy()) 
+                return 
             visited.append(node)
             for neighbour in node.get_routes():
-                self.dfs(visited,path,paths, neighbour.get_destination(), destination)
-                
-            path.pop()
+                if neighbour.get_entries() > 0:
+                    route.append(neighbour)
+                    self.dfs(visited, neighbour.get_destination(), destination, routes, route)
+                    route.pop()
+
             visited.pop()

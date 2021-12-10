@@ -9,5 +9,9 @@ class AliveClient(Thread):
 
     def run(self):
         while True:
-            self.company_server.verify_alive_companies()        
+            self.company_server.verify_alive_companies()
+            if not self.company_server.get_alive_equal():
+                self.company_server.set_alive_equal()
+                self.company_server.get_full_map()
+                
             time.sleep(3)

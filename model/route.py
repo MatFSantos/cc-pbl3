@@ -13,7 +13,7 @@ class Route: #trecho/edge
     
     def get_destination(self):
         return self.destination
-    
+        
     def get_price(self):
         return self.price
 

@@ -18,11 +18,10 @@ class Api_Flask(Thread):
         def index():
             return jsonify({"A": self.company.name})
 
-        @app.route('/travel/<string:origin>/<string:destination>')
+        @app.route(f'/{self.company_name}/<string:origin>/<string:destination>')
         def get_travel_paths(origin, destination):
-            #pressupondo que ja temos todo o mapa
-            paths = self.company.get_full_map().init_dfs(origin, destination)
-            return jsonify({"origem": self.get_company_map().get_cities()[0].get_name(), "destino":destination})
+            paths = self.company.get_routes_for_api(origin, destination)
+            return jsonify(paths)
 
         @app.route('/travel/buy/<string:path>')# path = cidade-cidade.companhia;cidade-cidade.companhia...
         def buy_travel(path): #rascunho
