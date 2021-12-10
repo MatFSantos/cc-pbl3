@@ -27,11 +27,15 @@ class Api_Flask(Thread):
         def buy_travel(): #rascunho
             paths = request.get_json()["path"]     
             for path in paths:
+                verify = False
                 if path['company'] == self.company_name:
-                    if not self.company_server.buy_entry_route(path):
-                        return jsonify({'message': "Não foi possível comprar a rota"}), 400
+                    verify = self.company_server.buy_entry_route(path)
                 else:
-                    self.company_server.buy_entry_route_other_company(path)
+                    verify = self.company_server.buy_entry_route_other_company(path)
+                
+                if not verify:
+                    return jsonify({'message': "Não foi possível comprar a rota"}), 400
+
             return jsonify({'message': "A compra foi efetuada"}, 200)
 
         @app.route('/teste')

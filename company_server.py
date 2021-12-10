@@ -1,6 +1,8 @@
 import socket
 import time
 import copy
+import string
+import random
 
 import json
 from alive_server import AliveServer
@@ -19,7 +21,6 @@ class CompanyServer(Thread):
         self.company = company
         self.name = company.get_name()
         self.election_running = False
-    
         if self.name == "A":
             self.addr = ('26.90.73.25', 55000)
         elif self.name == "B": 
@@ -27,7 +28,12 @@ class CompanyServer(Thread):
         else:
             self.addr = ('26.90.73.25', 57000)   
         
-        companies = self.get_companies()  
+        companies, coordinator = self.get_companies()
+        
+        if coordinator == self.name:
+            self.company.set_coordinator(True)
+
+        self.atual_coordinator = coordinator
         self.company_addr = []
         self.alive_companies = []
         for company_attr in companies:
@@ -60,6 +66,7 @@ class CompanyServer(Thread):
                 response = self.company.get_company_map().convert_to_string(self.company.get_name())
                 conn.send(bytes(response, 'utf-8'))
                 print("Mapa enviado para a companhia: ", cliente)
+
             if msg == "buy":
                 conn.send(bytes("ok", 'utf-8'))
                 path = json.loads(conn.recv(1024).decode())
@@ -68,6 +75,15 @@ class CompanyServer(Thread):
                 else:
                     conn.send(bytes('', 'utf-8'))
 
+            if msg == "election":
+                if self.election_running:
+                    conn.send(bytes('ok', 'utf-8'))
+                else:
+                    conn.send(bytes('', 'utf-8'))
+
+            if msg == "newCoordinator":
+                self.comapny.set_coordinator(True)
+                self.atual_coordinator = self.name
             conn.close()
 
     def verify_alive_companies(self): 
@@ -101,7 +117,8 @@ class CompanyServer(Thread):
         companies = companies.split(';')
         company1 = companies[0].split(',')
         company2 = companies[1].split(',')
-        return [{'ip': company1[0], 'port': company1[1], 'company':  company1[2]}, {'ip': company2[0], 'port': company2[1], 'company':  company2[2]}]
+        coordinator = companies[-1]
+        return [{'ip': company1[0], 'port': company1[1], 'company':  company1[2]}, {'ip': company2[0], 'port': company2[1], 'company':  company2[2]}], coordinator
 
     def get_full_map(self):
         string_map = ''
@@ -145,16 +162,69 @@ class CompanyServer(Thread):
             buy_socket.send(bytes(json.dumps(path), 'utf-8'))
             resp = buy_socket.recv(1024).decode()
             buy_socket.close()
+            return(bool(resp))
+
+    def init_election(self):
+        choice = random.choice(string.ascii_uppercase[0:3])
+        # while self.atual_coordinator == choice:
+        #     choice = random.choice(string.ascii_uppercase[0:3])
+       
+        # for company in self.alive_companies:
+        #     if choice in company.keys():
+        #         if company[choice]:
+        #             self.atual_coordinator = choice
+        #             self.company.set_coordinator(False)
+        #             i = 0
+        #             for company_attr in self.company_addr:      
+        #                 if self.alive_companies[i]
+        #                 election_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #                 election_socket.connect(self.company_addr[i]['addr'])
+        #                 election_socket.send(bytes("newCoordinator", 'utf-8'))
+
+        #                 i += 1
+            # if self.alive_companies[i][company_attr['company']]:
+            #     print("Requisitando o mapa da Companhia: ", company_attr['company'])
+            #     full_map_socket.connect(company_attr['addr'])
+            #     full_map_socket.send(bytes("map", 'utf-8'))
+            #     string_map += full_map_socket.recv(1024).decode()
+            # else:
+            #     print("Companhia: ", company_attr['company'], "inativa.")
+            # i += 1
+    # def election_is_running(self):
+    #     i = 0
+    #     for company_attr in self.company_addr:
+    #         election_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #         if self.alive_companies[i][company_attr['company']]:
+    #             election_socket.connect(company_attr['addr'])
+    #             election_socket.send(bytes("election", 'utf-8'))
+    #             if bool(election_socket.recv(1024).decode()):
+    #                 election_socket.close()
+    #                 return True      
+                
+    #         i += 1
+        
 
     def get_alive_equal(self):
         return self.alive_equal
 
-    def set_alive_equal(self):
-        self.alive_equal = True
+    def get_alives(self):
+        return self.alive_companies
 
+    def get_company_addr(self):
+        return self.company_addr
+
+    def get_atual_coordinator(self):
+        return self.atual_coordinator
+    
     def get_company(self):
         return self.company
 
     def get_name(self):
         return self.name
 
+    def set_alive_equal(self):
+        self.alive_equal = True
+        
+    def set_atual_coordinator(self, coordinator):
+        self.atual_coordinator = coordinator
+        print("atual coordenador é: ", self.atual_coordinator)

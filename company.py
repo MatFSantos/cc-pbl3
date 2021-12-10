@@ -31,9 +31,9 @@ class Company:
     def get_full_map(self):
         return self.full_map
 
-    def set_full_map(self, full_map):
-        self.full_map = full_map
-        
+    def get_is_coordinator(self):
+        return self.isCoordinator
+
     def get_routes_for_api(self, origin, destination):
         routes = self.full_map.init_dfs(origin, destination)
         paths_in_dict = []
@@ -118,5 +118,10 @@ class Company:
                     self.full_map.add_city(destination)
                 if not origin.compare_route(destination.get_name(), int(attr[2]), attr[4]):
                     Route(origin, destination, attr[2], attr[3], attr[4].replace("\n", "")) #instancio a nova rota.  
+    
+    def set_full_map(self, full_map):
+        self.full_map = full_map
 
+    def set_coordinator(self, isCoordinator):
+        self.isCoordinator = isCoordinator
 company = Company()
