@@ -4,6 +4,7 @@ from model.city import City
 from model.map import Map
 from api import Api_Flask
 import time
+from copy import deepcopy
 
 names_of_cities = ('Salvador', 'Maceió', 'Aracaju', 'Recife', 'São Luís', 'João Pessoa', 'Natal', 'Porto Seguro', 'Caruaru', 'Barreiras')
 
@@ -16,8 +17,10 @@ class Company:
         self.company_map = Map()
         self.full_map = Map()
         self.get_routing_company(self.name)    
-        self.company_server = CompanyServer(self).start()
-        Api_Flask(self).start()  
+        self.company_server = CompanyServer(self)
+        self.company_server.start()
+        Api_Flask(self.company_server).start()  
+        self.isCoordinator = False
 
     def get_name(self):
         return self.name
@@ -30,7 +33,7 @@ class Company:
 
     def set_full_map(self, full_map):
         self.full_map = full_map
-
+        
     def get_routes_for_api(self, origin, destination):
         routes = self.full_map.init_dfs(origin, destination)
         paths_in_dict = []
@@ -113,7 +116,7 @@ class Company:
                 if not destination:
                     destination = City(attr[1])
                     self.full_map.add_city(destination)
-                if not origin.compare_route(destination, attr[2], attr[4]):
+                if not origin.compare_route(destination.get_name(), int(attr[2]), attr[4]):
                     Route(origin, destination, attr[2], attr[3], attr[4].replace("\n", "")) #instancio a nova rota.  
 
 company = Company()

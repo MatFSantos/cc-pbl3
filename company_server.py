@@ -2,6 +2,7 @@ import socket
 import time
 import copy
 
+import json
 from alive_server import AliveServer
 from alive_client import AliveClient
 from model.city import City
@@ -17,6 +18,8 @@ class CompanyServer(Thread):
         Thread.__init__(self)
         self.company = company
         self.name = company.get_name()
+        self.election_running = False
+    
         if self.name == "A":
             self.addr = ('26.90.73.25', 55000)
         elif self.name == "B": 
@@ -57,6 +60,14 @@ class CompanyServer(Thread):
                 response = self.company.get_company_map().convert_to_string(self.company.get_name())
                 conn.send(bytes(response, 'utf-8'))
                 print("Mapa enviado para a companhia: ", cliente)
+            if msg == "buy":
+                conn.send(bytes("ok", 'utf-8'))
+                path = json.loads(conn.recv(1024).decode())
+                if self.buy_entry_route(path):
+                    conn.send(bytes('ok', 'utf-8'))
+                else:
+                    conn.send(bytes('', 'utf-8'))
+
             conn.close()
 
     def verify_alive_companies(self): 
@@ -114,9 +125,36 @@ class CompanyServer(Thread):
             print("Companhias inativas, mapa alterado somente para esta companhia.")
             full_map = self.company.get_company_map()
             self.company.set_full_map(full_map)
-        
+
+    def buy_entry_route(self, path):
+        origin = self.company.get_full_map().get_city_by_name(path['origin'])
+        route = origin.compare_route(path['destination'], int(path['price']), path['company'])
+        return route.passanger_buy()
+
+    def buy_entry_route_other_company(self, path):
+        buy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        company_addr = None
+        for company_attr in self.company_addr:
+            if company_attr['company'] == path['company']:
+                company_addr = company_attr['addr']
+                break
+        if company_addr:
+            buy_socket.connect(company_addr)
+            buy_socket.send(bytes("buy", 'utf-8'))
+            resp = buy_socket.recv(1024).decode()
+            buy_socket.send(bytes(json.dumps(path), 'utf-8'))
+            resp = buy_socket.recv(1024).decode()
+            buy_socket.close()
+
     def get_alive_equal(self):
         return self.alive_equal
 
     def set_alive_equal(self):
         self.alive_equal = True
+
+    def get_company(self):
+        return self.company
+
+    def get_name(self):
+        return self.name
+

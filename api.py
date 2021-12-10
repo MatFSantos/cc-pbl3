@@ -1,12 +1,12 @@
-from flask import Flask, json, jsonify
+from flask import Flask, json, jsonify, request
 from threading import Thread
 
 class Api_Flask(Thread):
 
-    def __init__(self, company):
+    def __init__(self, company_server):
         Thread.__init__(self)  
-        self.company = company
-        self.company_name = company.get_name()
+        self.company_server = company_server
+        self.company_name = self.company_server.get_name()
 
     def run(self):
         app = Flask(__name__)
@@ -20,21 +20,19 @@ class Api_Flask(Thread):
 
         @app.route(f'/{self.company_name}/<string:origin>/<string:destination>')
         def get_travel_paths(origin, destination):
-            paths = self.company.get_routes_for_api(origin, destination)
+            paths = self.company_server.get_company().get_routes_for_api(origin, destination)
             return jsonify(paths)
 
-        @app.route('/travel/buy/<string:path>')# path = cidade-cidade.companhia;cidade-cidade.companhia...
-        def buy_travel(path): #rascunho
-            print()
-            # if isCoordinator:
-            #     routes = path.split(";")
-            #     for route in routes:
-            #         splited_route =  route.split(".")
-            #         cities = splited_route[0] #cidade-cidade
-            #         company_route = splited_route[1] #companhia
-            # else:
-            #     return jsonify({"message": "Por favor, tente novamente."})
-
+        @app.route(f'/{self.company_name}/buy', methods=['POST'])# 
+        def buy_travel(): #rascunho
+            paths = request.get_json()["path"]     
+            for path in paths:
+                if path['company'] == self.company_name:
+                    if not self.company_server.buy_entry_route(path):
+                        return jsonify({'message': "Não foi possível comprar a rota"}), 400
+                else:
+                    self.company_server.buy_entry_route_other_company(path)
+            return jsonify({'message': "A compra foi efetuada"}, 200)
 
         @app.route('/teste')
         def teste():

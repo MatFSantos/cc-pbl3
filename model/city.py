@@ -14,19 +14,13 @@ class City: #vertex
         self.routes.append(newRoute)
 
     def compare_route(self, destination, price, company):
-        flag = False
+        flag = None
         for route in self.routes:
-            if route.get_destination().get_name() == destination.get_name():
+            if route.get_destination().get_name() == destination:
                 if route.get_price() == price:
                     if route.get_company() == company:
-                        flag = True
-                    else:
-                        flag = False
-                else:
-                    flag = False        
-            else:
-                flag = False           
+                        flag = route        
             if flag:
                 return flag
-        return False
+        return None
         

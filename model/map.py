@@ -25,9 +25,9 @@ class Map():
         string_map = ''
         for city in self.cities:
             for route in city.get_routes():
-                if company_name == route.get_company():
+                if route.get_company() == company_name:
                     string_map += f'{route.get_origin().get_name()},{route.get_destination().get_name()},{route.get_price()},{route.get_entries()},{route.get_company()}\n'
-        print("string map: ",string_map)
+        print("String map: \n", string_map)
         return string_map
     def init_dfs(self, origin, destination):
         visited = list()

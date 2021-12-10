@@ -3,8 +3,8 @@ class Route: #trecho/edge
     def __init__(self, origin, destination, price, entries, company):
         self.origin = origin #class City
         self.destination = destination #class City
-        self.price = price
-        self.entries = entries
+        self.price = int(price)
+        self.entries = int(entries)
         self.company = company #name Company
         self.origin.add_route(self)
     
