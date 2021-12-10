@@ -16,11 +16,15 @@ class Company:
         self.name = input("Informe a companhia: ")
         self.company_map = Map()
         self.full_map = Map()
-        self.get_routing_company(self.name)    
-        self.company_server = CompanyServer(self)
-        self.company_server.start()
-        Api_Flask(self.company_server).start()  
+        self.get_routing_company(self.name)
         self.isCoordinator = False
+        self.company_server = CompanyServer(self)
+        self.api = Api_Flask(self.company_server)
+        self.company_server.start()
+        self.api.start()
+    
+    def get_count_request(self):
+        return int(self.api.count_request)
 
     def get_name(self):
         return self.name
@@ -59,14 +63,6 @@ class Company:
                     'price': price
                 }
             )
-
-        # for city in self.full_map.get_cities():
-        #     print("cidade: ", city.get_name())
-        #     for route in city.get_routes():
-        #         print("rota:")
-        #         print("origin: ", route.get_origin().get_name())
-        #         print("destination: ", route.get_destination().get_name())
-        #         print("company: ", route.get_company())
 
         return paths_in_dict
                 
@@ -122,6 +118,6 @@ class Company:
     def set_full_map(self, full_map):
         self.full_map = full_map
 
-    def set_coordinator(self, isCoordinator):
-        self.isCoordinator = isCoordinator
+    def set_coordinator(self,newIsCoordinator):
+        self.isCoordinator = newIsCoordinator        
 company = Company()

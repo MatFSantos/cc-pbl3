@@ -1,5 +1,6 @@
 from flask import Flask, json, jsonify, request
 from threading import Thread
+import time
 
 class Api_Flask(Thread):
 
@@ -7,6 +8,7 @@ class Api_Flask(Thread):
         Thread.__init__(self)  
         self.company_server = company_server
         self.company_name = self.company_server.get_name()
+        self.count_request = 0
 
     def run(self):
         app = Flask(__name__)
@@ -25,7 +27,10 @@ class Api_Flask(Thread):
 
         @app.route(f'/{self.company_name}/buy', methods=['POST'])# 
         def buy_travel(): #rascunho
-            paths = request.get_json()["path"]     
+            self.count_request += 1
+            while not self.company_server.company.get_is_coordinator():
+                time.sleep(1)
+            paths = request.get_json()["path"]
             for path in paths:
                 verify = False
                 if path['company'] == self.company_name:
@@ -34,8 +39,9 @@ class Api_Flask(Thread):
                     verify = self.company_server.buy_entry_route_other_company(path)
                 
                 if not verify:
+                    self.count_request -= 1
                     return jsonify({'message': "Não foi possível comprar a rota"}), 400
-
+            self.count_request -= 1
             return jsonify({'message': "A compra foi efetuada"}, 200)
 
         @app.route('/teste')

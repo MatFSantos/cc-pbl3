@@ -27,18 +27,12 @@ class Map():
             for route in city.get_routes():
                 if route.get_company() == company_name:
                     string_map += f'{route.get_origin().get_name()},{route.get_destination().get_name()},{route.get_price()},{route.get_entries()},{route.get_company()}\n'
-        print("String map: \n", string_map)
         return string_map
     def init_dfs(self, origin, destination):
         visited = list()
         routes = list()
         route = list()
         self.dfs(visited, self.get_city_by_name(origin), self.get_city_by_name(destination), routes, route)
-        # for rota in routes:
-        #     print("caminho: ")
-        #     for caminho in rota:
-        #         print("origem: ", caminho.get_origin().get_name())
-        #         print("destino: ", caminho.get_destination().get_name())
          
         return routes
 

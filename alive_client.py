@@ -9,40 +9,39 @@ class AliveClient(Thread):
 
     def run(self):
         while True:
-            self.company_server.verify_alive_companies()
+            result = self.company_server.verify_alive_companies()
+            
             if not self.company_server.get_alive_equal():
                 self.company_server.set_alive_equal()
                 self.company_server.get_full_map()
-                if self.company_server.company.get_is_coordinator():
-                    # self.company_server.init_election()
-                    print("Coordenador é: ", self.company_server.get_atual_coordinator())
-                else:
-                    flag_coordinator_dead = False
-                    for alives in self.company_server.get_alives():
-                        if self.company_server.get_atual_coordinator() in alives.keys():
-                            if not alives[self.company_server.get_atual_coordinator()]:
-                                flag_coordinator_dead = True
+                if result:
+                    if not result[self.company_server.get_atual_coordinator()]:
+                        print('coordenador desconectado')
+                    else:
+                        keys = result.keys()
+                        conected = False
+                        for key in keys:
+                            if result[key]:
+                                conected = True
                                 break
-                    if flag_coordinator_dead:
-                        
-                        if self.company_server.get_atual_coordinator() == 'A':
-                            prox_coordinator = 'B'
-                        elif self.company_server.get_atual_coordinator() == 'B':
-                            prox_coordinator = 'C'
-                        else:
-                            prox_coordinator = 'A'
-                        self.company_server.set_atual_coordinator(prox_coordinator)
-                        if self.company_server.get_name() == prox_coordinator:
-                            self.company_server.get_company().set_coordinator(True)
-                        else:
-                            i = 0
-                            flag_have_alive = False
-                            for company_attr in self.company_server.get_company_addr():
-                                if self.company_server.get_alives()[i][company_attr['company']]:
-                                    flag_have_alive = True
-                                    break
-                                i += 1
-                            if not flag_have_alive:
-                                self.company_server.get_company().set_coordinator(True)
-                                self.company_server.set_atual_coordinator(self.company_server.get_name())
+                        if conected:
+                            counts_request = self.company_server.get_counts_request()
+                            counts_request[self.company_server.get_name()] = self.company_server.company.get_count_request()
+
+                            keys = counts_request.keys()
+                            bigger_company = ''
+                            bigger_request = 0
+                            for key in keys:
+                                if result[key] > bigger_request:
+                                    bigger_request = result[key]
+                                    bigger_company = key
+                            if bigger_company == self.company_server.get_name():
+                                print('a')
+                                #se torna novo coordenador e avisa aos demais.
+                            else:
+                                print('a')
+                                #avisa ao dono do maior numero de requisições q ele deve ser o coordenador.
+
+
+
             time.sleep(3)
