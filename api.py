@@ -43,10 +43,6 @@ class Api_Flask(Thread):
                     return jsonify({'message': "Não foi possível comprar a rota"}), 400
             self.count_request -= 1
             return jsonify({'message': "A compra foi efetuada"}, 200)
-
-        @app.route('/teste')
-        def teste():
-            return jsonify({"conteudo": "isso é um teste, amigo"})
         
         port = ''
         if self.company_name == 'A':

@@ -3,9 +3,9 @@ import socket
 tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = ('0.0.0.0', 50000)
 
-company_A = '26.183.229.122,55000,A'
-company_B = '26.183.229.122,56000,B'
-company_C = '26.183.229.122,57000,C'
+company_A = '26.90.73.25,55000,A'
+company_B = '26.90.73.25,56000,B'
+company_C = '26.90.73.25,57000,C'
 
 first_company = None
 

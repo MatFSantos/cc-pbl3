@@ -22,11 +22,11 @@ class CompanyServer(Thread):
         self.name = company.get_name()
         self.election_running = False
         if self.name == "A":
-            self.addr = ('26.183.229.122', 55000)
+            self.addr = ('26.90.73.25', 55000)
         elif self.name == "B": 
-            self.addr = ('26.183.229.122', 56000)
+            self.addr = ('26.90.73.25', 56000)
         else:
-            self.addr = ('26.183.229.122', 57000)   
+            self.addr = ('26.90.73.25', 57000)   
         
         # companies, coordinator = self.get_companies()
         companies = self.get_companies()
@@ -36,7 +36,7 @@ class CompanyServer(Thread):
         # else:
         #     self.company.set_coordinator(False)
 
-        # self.atual_coordinator = coordinator
+        self.atual_coordinator = ''
         self.company_addr = []
         self.alive_companies = []
         for company_attr in companies:
@@ -51,15 +51,16 @@ class CompanyServer(Thread):
         for company_attr in self.company_addr:
             self.alive_companies.append({company_attr['company']: False})
 
-        self.alive_equal = False #para verificar se ouve alguma alteração em uma companhia
-        AliveServer((self.addr[0], self.addr[1]+3000)).start() #para verificar
-
+        alive_server = AliveServer((self.addr[0], self.addr[1]+3000)) #para verificar
+        alive_server.start()
+        
         self.company_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.company_server.bind(self.addr)
         self.company_server.listen(5)
 
     def run(self):   
-        AliveClient(self).start()
+        alive_client = AliveClient(self)
+        alive_client.start()
         while True:
             response = ''
             conn, cliente = self.company_server.accept()
@@ -78,9 +79,11 @@ class CompanyServer(Thread):
                 else:
                     conn.send(bytes('', 'utf-8'))
             if msg == "count_request":
-                conn.send(bytes(self.company.get_count_request(),'utf-8'))
+                conn.send(bytes(str(self.company.get_count_request()),'utf-8'))
                 print("Contador de requisições enviado a companhia: ", cliente)
-
+            if msg == "new coordinator":
+                conn.send(bytes('ok', 'utf-8'))
+                self.set_atual_coordinator(conn.recv(1024).decode())
             conn.close()
 
     def get_counts_request(self):
@@ -92,21 +95,17 @@ class CompanyServer(Thread):
                 request_socket.connect(company_attr['addr'])
                 request_socket.send(bytes("count_request", 'utf-8'))
                 counts_request[company_attr['company']] = int(request_socket.recv(1024).decode())
-                print("mapa requisitado à Companhia: ", company_attr['company'])
-            else:
-                print("Companhia: ", company_attr['company'], "inativa.")
             i += 1
+
         return counts_request
 
-    def verify_alive_companies(self): 
-            
+    def verify_alive_companies(self):            
         i = 0
         change = {}
         for company_attr in self.company_addr:
             alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
             flag = self.alive_companies[i][company_attr['company']]
             try:
-                print("Tentativa de conexão com a Companhia: ", company_attr['company'])
                 alive_socket.connect(company_attr['addr_alive_server']) 
                 alive_socket.close()
                 self.alive_companies[i][company_attr['company']] = True
@@ -117,7 +116,6 @@ class CompanyServer(Thread):
                 self.alive_companies[i][company_attr['company']] = False
             finally:
                 if flag != self.alive_companies[i][company_attr['company']]:
-                    self.alive_equal = False
                     change[company_attr['company']] = self.alive_companies[i][company_attr['company']]
                 i += 1
         
@@ -132,11 +130,10 @@ class CompanyServer(Thread):
         company1 = companies[0].split(',')
         company2 = companies[1].split(',')
         coordinator = companies[-1]
-        return [{'ip': company1[0], 'port': company1[1], 'company':  company1[2]}, {'ip': company2[0], 'port': company2[1], 'company':  company2[2]}], coordinator
+        return [{'ip': company1[0], 'port': company1[1], 'company':  company1[2]}, {'ip': company2[0], 'port': company2[1], 'company':  company2[2]}]
 
     def get_full_map(self):
         string_map = ''
-        
         i = 0
         for company_attr in self.company_addr:
             full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -227,9 +224,6 @@ class CompanyServer(Thread):
         priority_socket.close()
         return priority_queue.split(',')
 
-    def get_alive_equal(self):
-        return self.alive_equal
-
     def get_alives(self):
         return self.alive_companies
 
@@ -244,10 +238,11 @@ class CompanyServer(Thread):
 
     def get_name(self):
         return self.name
-
-    def set_alive_equal(self):
-        self.alive_equal = True
         
     def set_atual_coordinator(self, coordinator):
         self.atual_coordinator = coordinator
+        if self.atual_coordinator == self.name:
+            self.company.set_coordinator(True)
+        else:
+            self.company.set_coordinator(False)
         print("atual coordenador é: ", self.atual_coordinator)

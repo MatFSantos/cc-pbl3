@@ -118,6 +118,6 @@ class Company:
     def set_full_map(self, full_map):
         self.full_map = full_map
 
-    def set_coordinator(self,newIsCoordinator):
+    def set_coordinator(self, newIsCoordinator):
         self.isCoordinator = newIsCoordinator        
 company = Company()
