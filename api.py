@@ -20,6 +20,11 @@ class Api_Flask(Thread):
         def index():
             return jsonify({"A": self.company.name})
 
+        @app.route(f'/{self.company_name}/routes', methods=['GET'])
+        def get_company_routes():
+            paths = self.company_server.get_company().get_company_routes_for_api()
+            return jsonify(paths)
+            
         @app.route(f'/{self.company_name}/<string:origin>/<string:destination>')
         def get_travel_paths(origin, destination):
             paths = self.company_server.get_company().get_routes_for_api(origin, destination)

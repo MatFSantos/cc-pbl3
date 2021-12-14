@@ -20,7 +20,17 @@ class Map():
             if city.get_name() == name:
                 return city
         return None
-    
+
+    def get_map_list_of_routes(self):
+        routes = list()
+        for city in self.cities:
+            for i in range(len(self.cities)):
+                if not self.cities[i] == city:
+                    finded_routes = self.init_dfs(city.get_name(), self.cities[i].get_name())
+                    if finded_routes:
+                        routes.extend(finded_routes)
+        return routes
+
     def convert_to_string(self, company_name):
         string_map = ''
         for city in self.cities:
@@ -28,6 +38,7 @@ class Map():
                 if route.get_company() == company_name:
                     string_map += f'{route.get_origin().get_name()},{route.get_destination().get_name()},{route.get_price()},{route.get_entries()},{route.get_company()}\n'
         return string_map
+
     def init_dfs(self, origin, destination):
         visited = list()
         routes = list()

@@ -38,8 +38,18 @@ class Company:
     def get_is_coordinator(self):
         return self.isCoordinator
 
-    def get_routes_for_api(self, origin, destination):
+    def get_all_routes_for_api(self, origin, destination):
         routes = self.full_map.init_dfs(origin, destination)
+        return self.get_list_of_routes(routes)
+
+    def get_company_routes_for_api(self):
+        routes = self.company_map.get_map_list_of_routes()
+        paths_in_dict = []
+        paths_in_dict.append(self.get_list_of_routes(routes))
+        return paths_in_dict
+
+        
+    def get_list_of_routes(self, routes):
         paths_in_dict = []
         for route in routes:
             path_in_dict = []
@@ -65,7 +75,6 @@ class Company:
             )
 
         return paths_in_dict
-                
 
     def get_routing_company(self, name):    
         file = open(f"maps\company{name}.txt", mode='r', encoding='utf-8') #abro o file
