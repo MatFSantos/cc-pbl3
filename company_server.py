@@ -134,7 +134,7 @@ class CompanyServer(Thread):
         counts_request = {}
         for company_attr in self.company_addr:
             request_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            request_socket.settimeout(1)
+            request_socket.settimeout(3)
             if self.alive_companies[i][company_attr['company']]:
                 request_socket.connect(company_attr['addr'])
                 request_socket.send(bytes("count_request", 'utf-8'))
@@ -157,7 +157,7 @@ class CompanyServer(Thread):
         change = {}
         for company_attr in self.company_addr:
             alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            alive_socket.settimeout(1)
+            alive_socket.settimeout(3)
             flag = self.alive_companies[i][company_attr['company']]
             try:
                 alive_socket.connect(company_attr['addr_alive_server'])
@@ -201,7 +201,7 @@ class CompanyServer(Thread):
         i = 0
         for company_attr in self.company_addr:
             full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            full_map_socket.settimeout(1)
+            full_map_socket.settimeout(3)
             if self.alive_companies[i][company_attr['company']]:
                 full_map_socket.connect(company_attr['addr'])
                 full_map_socket.send(bytes("map", 'utf-8'))
@@ -241,7 +241,7 @@ class CompanyServer(Thread):
                 i = 0
                 for company_attr in self.company_addr:
                     socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    socket_decrement.settimeout(1)
+                    socket_decrement.settimeout(3)
                     if self.alive_companies[i][company_attr['company']]:
                         socket_decrement.connect(company_attr['addr'])
                         socket_decrement.send(bytes("decrement", 'utf-8'))
@@ -288,7 +288,7 @@ class CompanyServer(Thread):
                     i = 0
                     for company_attr in self.company_addr:
                         socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        socket_decrement.settimeout(1)
+                        socket_decrement.settimeout(3)
                         if self.alive_companies[i][company_attr['company']] & (address != company_attr['addr']):
                             socket_decrement.connect(company_attr['addr'])
                             socket_decrement.send(bytes("decrement", 'utf-8'))
