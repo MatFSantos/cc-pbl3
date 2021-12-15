@@ -113,13 +113,13 @@ class CompanyServer(Thread):
                 ## captura a rota pelo seus atributos
                 route = origin.compare_route(path['destination'], int(path['price']), path['company'])
                 if route:
-                    print("numero de acentos", route.get_entries())
                     if route.passanger_buy():
+                        print("numero de acentos", route.get_entries())
                         conn.send(bytes('ok', 'utf-8'))
                     else:
                         conn.send(bytes('', 'utf-8'))
                 else:
-                    conn.send(bytes('ok', 'utf-8'))
+                    conn.send(bytes('', 'utf-8'))
 
             conn.close()
 
@@ -236,18 +236,18 @@ class CompanyServer(Thread):
         route = origin.compare_route(path['destination'], int(path['price']), path['company'])
         ## faz a compra
         if route:
-            print("numero de acentos", route.get_entries())
             if route.passanger_buy():
+                print("numero de acentos", route.get_entries())
                 i = 0
                 for company_attr in self.company_addr:
-                    full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    full_map_socket.settimeout(1)
+                    socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    socket_decrement.settimeout(1)
                     if self.alive_companies[i][company_attr['company']]:
-                        full_map_socket.connect(company_attr['addr'])
-                        full_map_socket.send(bytes("decrement", 'utf-8'))
-                        full_map_socket.recv(1024)
-                        full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
-                        response = bool(full_map_socket.recv(1024).decode())
+                        socket_decrement.connect(company_attr['addr'])
+                        socket_decrement.send(bytes("decrement", 'utf-8'))
+                        socket_decrement.recv(1024)
+                        socket_decrement.send(bytes(json.dumps(path), 'utf-8'))
+                        response = bool(socket_decrement.recv(1024).decode())
                     i += 1
                 return True
             else:
@@ -289,14 +289,14 @@ class CompanyServer(Thread):
                     for company_attr in self.company_addr:
                         full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         full_map_socket.settimeout(1)
-                        if self.alive_companies[i][company_attr['company']] & company_addr != company_attr['company']:
+                        if self.alive_companies[i][company_attr['company']] & company_addr != company_attr['addr']:
                             full_map_socket.connect(company_attr['addr'])
                             full_map_socket.send(bytes("decrement", 'utf-8'))
                             full_map_socket.recv(1024)
                             full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
                             response = bool(full_map_socket.recv(1024).decode())
                         i += 1
-                        self.buy_entry_route(path)
+                    self.buy_entry_route(path)
                 return(bool(resp))
             except:
                 return False
