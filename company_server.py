@@ -233,7 +233,6 @@ class CompanyServer(Thread):
                 -False, caso não tenha sido possível comprar a passagem (boolean)
         """
         buy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        buy_socket.settimeout(1)
         company_addr = None
         ## procura pelo endereço da companhia que possui a rota que será comprada
         for company_attr in self.company_addr:
