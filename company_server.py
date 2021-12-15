@@ -250,7 +250,8 @@ class CompanyServer(Thread):
                 buy_socket.close()
                 ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
                 if bool(resp):
-                    self.buy_entry_in_full_map(path)
+                    # self.buy_entry_in_full_map(path)
+                    self.buy_entry_route(path)
                 return(bool(resp))
             except:
                 return False
