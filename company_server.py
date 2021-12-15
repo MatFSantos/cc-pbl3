@@ -297,7 +297,7 @@ class CompanyServer(Thread):
                             response = bool(full_map_socket.recv(1024).decode())
                         i += 1
                     self.buy_entry_route(path)
-                    return (bool(resp))
+                    return True
                 else:
                     return False
             except:
