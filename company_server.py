@@ -238,6 +238,7 @@ class CompanyServer(Thread):
         if route:
             if route.passanger_buy():
                 print("numero de acentos", route.get_entries())
+                print("Ta executando isso aq")
                 i = 0
                 for company_attr in self.company_addr:
                     socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -296,7 +297,8 @@ class CompanyServer(Thread):
                             full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
                             response = bool(full_map_socket.recv(1024).decode())
                         i += 1
-                    self.buy_entry_route(path)
+                    self.buy_entry_in_full_map(path)
+                    print('ele decrementou')
                     return True
                 else:
                     return False
