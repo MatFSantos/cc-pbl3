@@ -275,7 +275,7 @@ class CompanyServer(Thread):
                 company_addr = company_attr['addr'] 
                 break
         if company_addr:
-            ##se comunica com a companhia via socket e efetua a compra
+            ## se comunica com a companhia via socket e efetua a compra
             try:
                 buy_socket.connect(company_addr)
                 buy_socket.send(bytes("buy", 'utf-8'))
@@ -297,7 +297,9 @@ class CompanyServer(Thread):
                             response = bool(full_map_socket.recv(1024).decode())
                         i += 1
                     self.buy_entry_route(path)
-                return(bool(resp))
+                    return (bool(resp))
+                else:
+                    return False
             except:
                 return False
 
