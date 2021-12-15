@@ -105,6 +105,22 @@ class CompanyServer(Thread):
             if msg == "new coordinator":
                 conn.send(bytes('ok', 'utf-8'))
                 self.set_atual_coordinator(conn.recv(1024).decode())
+            if msg == "decrement":
+                conn.send(bytes('ok', 'utf-8'))
+                path = json.loads(conn.recv(1024).decode())
+                ## captura a cidade origem pelo nome
+                origin = self.company.get_full_map().get_city_by_name(path['origin'])
+                ## captura a rota pelo seus atributos
+                route = origin.compare_route(path['destination'], int(path['price']), path['company'])
+                if route:
+                    print("numero de acentos", route.get_entries())
+                    if route.passanger_buy():
+                        conn.send(bytes('ok', 'utf-8'))
+                    else:
+                        conn.send(bytes('', 'utf-8'))
+                else:
+                    conn.send(bytes('ok', 'utf-8'))
+
             conn.close()
 
     def get_counts_request(self):
@@ -219,7 +235,26 @@ class CompanyServer(Thread):
         ## captura a rota pelo seus atributos
         route = origin.compare_route(path['destination'], int(path['price']), path['company'])
         ## faz a compra
-        return route.passanger_buy()
+        if route:
+            print("numero de acentos", route.get_entries())
+            if route.passanger_buy():
+                i = 0
+                for company_attr in self.company_addr:
+                    full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    full_map_socket.settimeout(1)
+                    if self.alive_companies[i][company_attr['company']]:
+                        full_map_socket.connect(company_attr['addr'])
+                        full_map_socket.send(bytes("decrement", 'utf-8'))
+                        full_map_socket.recv(1024)
+                        full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
+                        response = bool(full_map_socket.recv(1024).decode())
+                    i += 1
+                return True
+            else:
+                return False
+        else:
+            return False
+        
 
     def buy_entry_route_other_company(self, path):
         """
@@ -250,8 +285,18 @@ class CompanyServer(Thread):
                 buy_socket.close()
                 ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
                 if bool(resp):
-                    # self.buy_entry_in_full_map(path)
-                    self.buy_entry_route(path)
+                    i = 0
+                    for company_attr in self.company_addr:
+                        full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        full_map_socket.settimeout(1)
+                        if self.alive_companies[i][company_attr['company']] & company_addr != company_attr['company']:
+                            full_map_socket.connect(company_attr['addr'])
+                            full_map_socket.send(bytes("decrement", 'utf-8'))
+                            full_map_socket.recv(1024)
+                            full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
+                            response = bool(full_map_socket.recv(1024).decode())
+                        i += 1
+                        self.buy_entry_route(path)
                 return(bool(resp))
             except:
                 return False
