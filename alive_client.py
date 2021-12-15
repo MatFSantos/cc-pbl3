@@ -23,6 +23,7 @@ class AliveClient(Thread):
             Instancia um objeto AliveClient e inicializa seus atributos
         """
         Thread.__init__(self)
+        print("Começou o alive client")
         self.company_server = company_server
         self.counter_to_election = 0
 
@@ -145,6 +146,7 @@ class AliveClient(Thread):
         i = 0
         for company_attr in self.company_server.get_company_addr():
             notify_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            notify_socket.settimeout(1)
             if self.company_server.get_alives()[i][company_attr['company']]:
                 notify_socket.connect(company_attr['addr'])
                 notify_socket.send(bytes("new coordinator", 'utf-8'))

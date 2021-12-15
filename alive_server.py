@@ -15,6 +15,7 @@ class AliveServer(Thread):
             Instancia um objeto AliveServer e inicializa seus atributos
         """
         Thread.__init__(self)
+        print("Começou o alive server")
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(host)
         self.socket.listen(5)

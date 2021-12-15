@@ -31,6 +31,7 @@ class CompanyServer(Thread):
             Instancia um objeto CompanyServer e inicializa seus atributos.
         """
         Thread.__init__(self)
+        print('inicio do init')
         self.company = company
         self.name = company.get_name()
         if self.name == "A":
@@ -40,7 +41,9 @@ class CompanyServer(Thread):
         else:
             self.addr = companyC
         
+        print('inicio da comunicação com broadcast')
         companies = self.get_companies()
+        print('fim da comunicação com broadcast')
 
         self.atual_coordinator = ''
 
@@ -115,6 +118,7 @@ class CompanyServer(Thread):
         counts_request = {}
         for company_attr in self.company_addr:
             request_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            request_socket.settimeout(1)
             if self.alive_companies[i][company_attr['company']]:
                 request_socket.connect(company_attr['addr'])
                 request_socket.send(bytes("count_request", 'utf-8'))
@@ -136,7 +140,8 @@ class CompanyServer(Thread):
         i = 0
         change = {}
         for company_attr in self.company_addr:
-            alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
+            alive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            alive_socket.settimeout(1)
             flag = self.alive_companies[i][company_attr['company']]
             try:
                 alive_socket.connect(company_attr['addr_alive_server'])
@@ -180,6 +185,7 @@ class CompanyServer(Thread):
         i = 0
         for company_attr in self.company_addr:
             full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            full_map_socket.settimeout(1)
             if self.alive_companies[i][company_attr['company']]:
                 full_map_socket.connect(company_attr['addr'])
                 full_map_socket.send(bytes("map", 'utf-8'))
@@ -227,6 +233,7 @@ class CompanyServer(Thread):
                 -False, caso não tenha sido possível comprar a passagem (boolean)
         """
         buy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        buy_socket.settimeout(1)
         company_addr = None
         ## procura pelo endereço da companhia que possui a rota que será comprada
         for company_attr in self.company_addr:
