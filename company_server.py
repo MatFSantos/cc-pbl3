@@ -5,7 +5,7 @@ from alive_server import AliveServer
 from alive_client import AliveClient
 from threading import Thread
 
-host = ('127.0.0.1', 50000) #sevidor de broadcast
+host = ('26.183.229.122', 50000) #sevidor de broadcast
 
 companyA = ('26.183.229.122', 55000) #ip de hospedagem da companhia A
 companyB = ('26.90.73.25', 56000) #ip de hospedagem da companhia B
