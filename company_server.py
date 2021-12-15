@@ -284,6 +284,7 @@ class CompanyServer(Thread):
                 resp = buy_socket.recv(1024).decode()
                 buy_socket.close()
                 ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
+                print('resp: ', resp)
                 if bool(resp):
                     i = 0
                     for company_attr in self.company_addr:
