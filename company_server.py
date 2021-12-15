@@ -315,9 +315,11 @@ class CompanyServer(Thread):
         city = self.company.get_full_map().get_city_by_name(path['origin'])
         route = city.compare_route(path['destination'], path['price'], path['company'])
         if route:
-            route.passanger_buy()
-            print("Numero de acentos: ", route.get_entries())
-            return True
+            if route.passanger_buy():
+                print("Numero de acentos: ", route.get_entries())
+                return True
+            else:
+                return False
         return False
 
     def get_alives(self):
