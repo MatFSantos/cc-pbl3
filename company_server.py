@@ -322,6 +322,8 @@ class CompanyServer(Thread):
         route = city.compare_route(path['destination'], path['price'], path['company'])
         if route:
             route.passanger_buy()
+            return True
+        return False
 
     def get_alives(self):
         """
