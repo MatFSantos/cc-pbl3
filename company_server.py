@@ -95,7 +95,7 @@ class CompanyServer(Thread):
             if msg == "buy":
                 conn.send(bytes("ok", 'utf-8'))
                 path = json.loads(conn.recv(1024).decode())
-                if self.buy_entry_route(path):
+                if self.buy_entry_in_full_map(path):
                     conn.send(bytes('ok', 'utf-8'))
                 else:
                     conn.send(bytes('', 'utf-8'))
@@ -278,6 +278,7 @@ class CompanyServer(Thread):
         if company_addr:
             ## se comunica com a companhia via socket e efetua a compra
             try:
+                print('entrou no try')
                 buy_socket.connect(company_addr)
                 buy_socket.send(bytes("buy", 'utf-8'))
                 resp = buy_socket.recv(1024).decode()
@@ -286,23 +287,27 @@ class CompanyServer(Thread):
                 buy_socket.close()
                 ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
                 if bool(resp):
+                    print('entrou no if')
                     i = 0
                     for company_attr in self.company_addr:
-                        full_map_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        full_map_socket.settimeout(1)
+                        print('i= ',i)
+                        socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        socket_decrement.settimeout(1)
                         if self.alive_companies[i][company_attr['company']] & company_addr != company_attr['addr']:
-                            full_map_socket.connect(company_attr['addr'])
-                            full_map_socket.send(bytes("decrement", 'utf-8'))
-                            full_map_socket.recv(1024)
-                            full_map_socket.send(bytes(json.dumps(path), 'utf-8'))
-                            response = bool(full_map_socket.recv(1024).decode())
+                            socket_decrement.connect(company_attr['addr'])
+                            socket_decrement.send(bytes("decrement", 'utf-8'))
+                            socket_decrement.recv(1024)
+                            socket_decrement.send(bytes(json.dumps(path), 'utf-8'))
+                            response = bool(socket_decrement.recv(1024).decode())
                         i += 1
                     self.buy_entry_in_full_map(path)
                     print('ele decrementou')
                     return True
                 else:
+                    print('retornou no else')
                     return False
             except:
+                print('retornou no try')
                 return False
 
     def buy_entry_in_full_map(self, path):
