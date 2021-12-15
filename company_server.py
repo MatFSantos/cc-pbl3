@@ -238,7 +238,6 @@ class CompanyServer(Thread):
         if route:
             if route.passanger_buy():
                 print("numero de acentos", route.get_entries())
-                print("Ta executando isso aq")
                 i = 0
                 for company_attr in self.company_addr:
                     socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -269,17 +268,16 @@ class CompanyServer(Thread):
                 -False, caso não tenha sido possível comprar a passagem (boolean)
         """
         buy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        company_addr = None
+        address = None
         ## procura pelo endereço da companhia que possui a rota que será comprada
         for company_attr in self.company_addr:
             if company_attr['company'] == path['company']:
-                company_addr = company_attr['addr'] 
+                address = company_attr['addr'] 
                 break
-        if company_addr:
+        if address:
             ## se comunica com a companhia via socket e efetua a compra
             try:
-                print('entrou no try')
-                buy_socket.connect(company_addr)
+                buy_socket.connect(address)
                 buy_socket.send(bytes("buy", 'utf-8'))
                 resp = buy_socket.recv(1024).decode()
                 buy_socket.send(bytes(json.dumps(path), 'utf-8'))
@@ -287,13 +285,11 @@ class CompanyServer(Thread):
                 buy_socket.close()
                 ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
                 if bool(resp):
-                    print('entrou no if')
                     i = 0
                     for company_attr in self.company_addr:
-                        print('i= ',i)
                         socket_decrement = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket_decrement.settimeout(1)
-                        if self.alive_companies[i][company_attr['company']] & company_addr != company_attr['addr']:
+                        if self.alive_companies[i][company_attr['company']] & (address != company_attr['addr']):
                             socket_decrement.connect(company_attr['addr'])
                             socket_decrement.send(bytes("decrement", 'utf-8'))
                             socket_decrement.recv(1024)
@@ -301,13 +297,10 @@ class CompanyServer(Thread):
                             response = bool(socket_decrement.recv(1024).decode())
                         i += 1
                     self.buy_entry_in_full_map(path)
-                    print('ele decrementou')
                     return True
                 else:
-                    print('retornou no else')
                     return False
             except:
-                print('retornou no try')
                 return False
 
     def buy_entry_in_full_map(self, path):
@@ -322,6 +315,7 @@ class CompanyServer(Thread):
         route = city.compare_route(path['destination'], path['price'], path['company'])
         if route:
             route.passanger_buy()
+            print("Numero de acentos: ", route.get_entries())
             return True
         return False
 
