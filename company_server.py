@@ -8,8 +8,8 @@ from threading import Thread
 host = ('127.0.0.1', 50000) #sevidor de broadcast
 
 companyA = ('26.183.229.122', 55000) #ip de hospedagem da companhia A
-companyB = ('26.183.229.122', 56000) #ip de hospedagem da companhia B
-companyC = ('26.183.229.122', 57000) #ip de hospedagem da companhia C
+companyB = ('26.90.73.25', 56000) #ip de hospedagem da companhia B
+companyC = ('26.90.73.25', 57000) #ip de hospedagem da companhia C
 
 class CompanyServer(Thread):
     """
@@ -235,16 +235,19 @@ class CompanyServer(Thread):
                 break
         if company_addr:
             ##se comunica com a companhia via socket e efetua a compra
-            buy_socket.connect(company_addr)
-            buy_socket.send(bytes("buy", 'utf-8'))
-            resp = buy_socket.recv(1024).decode()
-            buy_socket.send(bytes(json.dumps(path), 'utf-8'))
-            resp = buy_socket.recv(1024).decode()
-            buy_socket.close()
-            ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
-            if bool(resp):
-                self.buy_entry_in_full_map(path)
-            return(bool(resp))
+            try:
+                buy_socket.connect(company_addr)
+                buy_socket.send(bytes("buy", 'utf-8'))
+                resp = buy_socket.recv(1024).decode()
+                buy_socket.send(bytes(json.dumps(path), 'utf-8'))
+                resp = buy_socket.recv(1024).decode()
+                buy_socket.close()
+                ## se foi possível fazer a compra, o número de acentos também é decrementado nessa companhia
+                if bool(resp):
+                    self.buy_entry_in_full_map(path)
+                return(bool(resp))
+            except:
+                return False
 
     def buy_entry_in_full_map(self, path):
         """
